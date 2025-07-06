@@ -3,36 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <title>Hamster Touch & Stars</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       background: linear-gradient(to top, #d0f0f7, #fff8dc);
       font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
     }
 
     .game-container {
       position: relative;
-      width: 360px;
-      height: 640px;
+      width: 100%;
+      height: 100%;
+      max-width: 480px;
+      max-height: 100vh;
       background: #ffffff;
       border-radius: 20px;
       border: 3px solid #ccc;
       overflow: hidden;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      touch-action: none; /* Prevent touch issues */
+      touch-action: none; /* Important for touch devices */
+      margin: 0 auto;
     }
 
     .hamster {
       position: absolute;
       width: 80px;
-      left: 140px;
-      top: 500px;
+      left: 50%;
+      top: 80%;
+      transform: translate(-50%, -50%);
       transition: left 0.4s, top 0.4s;
       z-index: 10;
     }
@@ -142,15 +145,15 @@
       setTimeout(checkCollision, 400);
     });
 
-    // Keyboard control (for laptop)
+    // Keyboard control (optional for desktop)
     document.addEventListener("keydown", (e) => {
-      let left = parseInt(hamster.style.left) || 140;
-      let top = parseInt(hamster.style.top) || 500;
+      let left = parseInt(hamster.style.left) || game.clientWidth / 2 - 40;
+      let top = parseInt(hamster.style.top) || game.clientHeight * 0.8;
 
       if (e.key === "ArrowLeft") hamster.style.left = Math.max(0, left - 20) + "px";
-      if (e.key === "ArrowRight") hamster.style.left = Math.min(280, left + 20) + "px";
+      if (e.key === "ArrowRight") hamster.style.left = Math.min(game.clientWidth - 80, left + 20) + "px";
       if (e.key === "ArrowUp") hamster.style.top = Math.max(0, top - 20) + "px";
-      if (e.key === "ArrowDown") hamster.style.top = Math.min(560, top + 20) + "px";
+      if (e.key === "ArrowDown") hamster.style.top = Math.min(game.clientHeight - 80, top + 20) + "px";
 
       setTimeout(checkCollision, 200);
     });
