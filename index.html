@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hamster Touch & Stars</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to top, #d0f0f7, #fff8dc);
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .game-container {
+      position: relative;
+      width: 360px;
+      height: 640px;
+      background: #ffffff;
+      border-radius: 20px;
+      border: 3px solid #ccc;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      touch-action: none; /* Prevent touch issues */
+    }
+
+    .hamster {
+      position: absolute;
+      width: 80px;
+      left: 140px;
+      top: 500px;
+      transition: left 0.4s, top 0.4s;
+      z-index: 10;
+    }
+
+    .star {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background-color: gold;
+      border-radius: 50%;
+      z-index: 5;
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    #score, #best {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #best {
+      top: 35px;
+      font-size: 16px;
+      color: #444;
+    }
+
+    #timer {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container" id="game">
+    <img src="https://i.imgur.com/65cbEFb.png" id="hamster" class="hamster" />
+    <div id="star" class="star"></div>
+    <div id="score">Score: 0</div>
+    <div id="best">🔝 Best Score: 0</div>
+    <div id="timer">⏱️ 60</div>
+  </div>
+
+  <audio id="catchSound" src="https://cdn.pixabay.com/audio/2022/03/04/audio_1cb96fa5cb.mp3" preload="auto"></audio>
+
+  <script>
+    const game = document.getElementById("game");
+    const hamster = document.getElementById("hamster");
+    const star = document.getElementById("star");
+    const scoreEl = document.getElementById("score");
+    const bestEl = document.getElementById("best");
+    const timerEl = document.getElementById("timer");
+    const sound = document.getElementById("catchSound");
+
+    let score = 0;
+    let timeLeft = 60;
+    let bestScore = localStorage.getItem("bestScore") || 0;
+    bestEl.innerText = "🔝 Best Score: " + bestScore;
+
+    function moveStar() {
+      const x = Math.floor(Math.random() * (game.clientWidth - 50));
+      const y = Math.floor(Math.random() * (game.clientHeight - 150));
+      star.style.left = x + "px";
+      star.style.top = y + "px";
+    }
+
+    setInterval(moveStar, 2000);
+
+    function checkCollision() {
+      const h = hamster.getBoundingClientRect();
+      const s = star.getBoundingClientRect();
+
+      if (
+        h.left < s.right &&
+        h.right > s.left &&
+        h.top < s.bottom &&
+        h.bottom > s.top
+      ) {
+        score++;
+        scoreEl.innerText = "Score: " + score;
+        sound.currentTime = 0;
+        sound.play();
+        moveStar();
+      }
+    }
+
+    // ✅ Touch control
+    game.addEventListener("touchstart", (e) => {
+      const rect = game.getBoundingClientRect();
+      const touch = e.touches[0];
+      const x = touch.clientX - rect.left - 40; // Half hamster width
+      const y = touch.clientY - rect.top - 40;
+
+      hamster.style.left = Math.max(0, Math.min(x, game.clientWidth - 80)) + "px";
+      hamster.style.top = Math.max(0, Math.min(y, game.clientHeight - 80)) + "px";
+
+      setTimeout(checkCollision, 400);
+    });
+
+    // Keyboard control (for laptop)
+    document.addEventListener("keydown", (e) => {
+      let left = parseInt(hamster.style.left) || 140;
+      let top = parseInt(hamster.style.top) || 500;
+
+      if (e.key === "ArrowLeft") hamster.style.left = Math.max(0, left - 20) + "px";
+      if (e.key === "ArrowRight") hamster.style.left = Math.min(280, left + 20) + "px";
+      if (e.key === "ArrowUp") hamster.style.top = Math.max(0, top - 20) + "px";
+      if (e.key === "ArrowDown") hamster.style.top = Math.min(560, top + 20) + "px";
+
+      setTimeout(checkCollision, 200);
+    });
+
+    function startTimer() {
+      const t = setInterval(() => {
+        timeLeft--;
+        timerEl.innerText = "⏱️ " + timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(t);
+          if (score > bestScore) {
+            localStorage.setItem("bestScore", score);
+            alert("👏 Time's up! New high score: " + score);
+          } else {
+            alert("Time's up! Your score: " + score);
+          }
+          location.reload();
+        }
+      }, 1000);
+    }
+
+    moveStar();
+    startTimer();
+  </script>
+</body>
+</html>
