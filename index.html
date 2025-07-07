@@ -26,7 +26,7 @@
       border: 3px solid #ccc;
       overflow: hidden;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      touch-action: none;
+      touch-action: none; /* Important for touch devices */
       margin: 0 auto;
     }
 
@@ -132,8 +132,51 @@
       }
     }
 
+    // ✅ Touch control
     game.addEventListener("touchstart", (e) => {
       const rect = game.getBoundingClientRect();
       const touch = e.touches[0];
-      const x = touch.clientX - rect.left - 40;
-      const y = to
+      const x = touch.clientX - rect.left - 40; // Half hamster width
+      const y = touch.clientY - rect.top - 40;
+
+      hamster.style.left = Math.max(0, Math.min(x, game.clientWidth - 80)) + "px";
+      hamster.style.top = Math.max(0, Math.min(y, game.clientHeight - 80)) + "px";
+
+      setTimeout(checkCollision, 400);
+    });
+
+    // Keyboard control (optional for desktop)
+    document.addEventListener("keydown", (e) => {
+      let left = parseInt(hamster.style.left) || game.clientWidth / 2 - 40;
+      let top = parseInt(hamster.style.top) || game.clientHeight * 0.8;
+
+      if (e.key === "ArrowLeft") hamster.style.left = Math.max(0, left - 20) + "px";
+      if (e.key === "ArrowRight") hamster.style.left = Math.min(game.clientWidth - 80, left + 20) + "px";
+      if (e.key === "ArrowUp") hamster.style.top = Math.max(0, top - 20) + "px";
+      if (e.key === "ArrowDown") hamster.style.top = Math.min(game.clientHeight - 80, top + 20) + "px";
+
+      setTimeout(checkCollision, 200);
+    });
+
+    function startTimer() {
+      const t = setInterval(() => {
+        timeLeft--;
+        timerEl.innerText = "⏱️ " + timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(t);
+          if (score > bestScore) {
+            localStorage.setItem("bestScore", score);
+            alert("👏 Time's up! New high score: " + score);
+          } else {
+            alert("Time's up! Your score: " + score);
+          }
+          location.reload();
+        }
+      }, 1000);
+    }
+
+    moveStar();
+    startTimer();
+  </script>
+</body>
+</html>
