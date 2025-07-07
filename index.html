@@ -26,7 +26,7 @@
       border: 3px solid #ccc;
       overflow: hidden;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      touch-action: none; /* Important for touch devices */
+      touch-action: none;
       margin: 0 auto;
     }
 
@@ -82,7 +82,7 @@
 </head>
 <body>
   <div class="game-container" id="game">
-    <img src="https://i.imgur.com/65cbEFb.png" id="hamster" class="hamster" />
+    <img src="https://i.imgur.com/hEDbdan.png" id="hamster" class="hamster" />
     <div id="star" class="star"></div>
     <div id="score">Score: 0</div>
     <div id="best">🔝 Best Score: 0</div>
@@ -132,11 +132,10 @@
       }
     }
 
-    // ✅ Touch control
     game.addEventListener("touchstart", (e) => {
       const rect = game.getBoundingClientRect();
       const touch = e.touches[0];
-      const x = touch.clientX - rect.left - 40; // Half hamster width
+      const x = touch.clientX - rect.left - 40;
       const y = touch.clientY - rect.top - 40;
 
       hamster.style.left = Math.max(0, Math.min(x, game.clientWidth - 80)) + "px";
@@ -145,7 +144,6 @@
       setTimeout(checkCollision, 400);
     });
 
-    // Keyboard control (optional for desktop)
     document.addEventListener("keydown", (e) => {
       let left = parseInt(hamster.style.left) || game.clientWidth / 2 - 40;
       let top = parseInt(hamster.style.top) || game.clientHeight * 0.8;
